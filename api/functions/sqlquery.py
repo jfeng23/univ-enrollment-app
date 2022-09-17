@@ -64,19 +64,19 @@ conn.commit()
 print("Tables created successfully")
 
 # load preexisting tables 
-table = pd.read_csv('samplestudents.csv')
+table = pd.read_csv('./data/samplestudents.csv')
 cur = conn.cursor()
 for i, row in table.iterrows():
     params = (row.sid, row.first_name, row.last_name, row.credits)
     cur.execute('INSERT INTO student (sid, first_name, last_name, credits) VALUES(?, ?, ?, ?)', params)
 
-table = pd.read_csv('sampleinstructors.csv')
+table = pd.read_csv('./data/sampleinstructors.csv')
 cur = conn.cursor()
 for i, row in table.iterrows():
     params = (row.tid, row.first_name, row.last_name, row.dept)
     cur.execute('INSERT INTO instructor (tid, first_name, last_name, dept) VALUES(?, ?, ?, ?)', params)
 
-table = pd.read_csv('samplecourses.csv')
+table = pd.read_csv('./data/samplecourses.csv')
 cur = conn.cursor()
 for i, row in table.iterrows():
     params = (row.cid, row.title, row.tid)

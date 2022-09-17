@@ -152,3 +152,4 @@ yarn-debug.log*
 yarn-error.log*
 node_modules
 api/univ.sqlite-journal
+*.sqlite
