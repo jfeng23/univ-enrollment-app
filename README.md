@@ -1,3 +1,5 @@
+Justin Feng
+
 REQUIREMENTS TO RUN:
 
 1. Run the following commands in the project directory to setup the app:
