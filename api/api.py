@@ -180,5 +180,7 @@ def sql_data_course_edit():
            WHERE title = ' + old_title + ' and tid = ' + old_tid
     return render_template('coursedb.html', results=results, msg=msg)
 
+# ---------------------------- enrollment ----------------------------
+
 if __name__ == "__main__":
     app.run(debug=True)
