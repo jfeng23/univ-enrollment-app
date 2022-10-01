@@ -8,6 +8,7 @@ def index():
     return render_template('index.html')
 
 # ---------------------------- students ----------------------------
+
 @app.route('/student') 
 def student_database():
     from functions.sqlquery import sql_query
@@ -66,6 +67,7 @@ def sql_data_student_edit():
     return render_template('studentdb.html', results=results, msg=msg)
 
 # ---------------------------- instructors ----------------------------
+
 @app.route('/instructor') 
 def instructor_database():
     from functions.sqlquery import sql_query
@@ -181,6 +183,41 @@ def sql_data_course_edit():
     return render_template('coursedb.html', results=results, msg=msg)
 
 # ---------------------------- enrollment ----------------------------
+
+def sql_data_enroll_delete():
+    from functions.sqlquery import sql_delete, sql_query
+    if request.method == 'GET':
+        tid = request.args.get('tid')
+        title = request.args.get('title')
+        sql_delete(''' DELETE FROM enroll where title = ? and tid = ?''', (title,tid) )
+    results = sql_query(''' SELECT * FROM enroll''')
+    msg = 'DELETE FROM enroll WHERE title = ' + title + ' and tid = ' + tid
+    return render_template('enrolldb.html', results=results, msg=msg)
+
+@app.route('/enroll/query_edit',methods = ['POST', 'GET']) #this is when user clicks edit link
+def sql_edit_enroll_link():
+    from functions.sqlquery import sql_query, sql_query2
+    if request.method == 'GET':
+        etid = request.args.get('etid')
+        etitle = request.args.get('etitle')
+        eresults = sql_query2(''' SELECT * FROM enroll where title = ? and tid = ?''', (etitle,etid))
+    results = sql_query(''' SELECT * FROM enroll''')
+    return render_template('enrolldb.html', eresults=eresults, results=results)
+
+@app.route('/enroll/edit',methods = ['POST', 'GET']) #this is when user submits an edit
+def sql_data_enroll_edit():
+    from functions.sqlquery import sql_edit_insert, sql_query
+    if request.method == 'POST':
+        old_tid = request.form['old_tid']
+        old_title = request.form['old_title']
+        tid = request.form['tid']
+        title = request.form['title']
+        sql_edit_insert(''' UPDATE enroll set title=?,tid=? WHERE title=? and tid=? ''', \
+                       (title,tid,old_title,old_tid) )
+    results = sql_query(''' SELECT * FROM enroll''')
+    msg = 'UPDATE enroll set title = ' + title + ', tid = ' + tid +' \
+           WHERE title = ' + old_title + ' and tid = ' + old_tid
+    return render_template('enrolldb.html', results=results, msg=msg)
 
 if __name__ == "__main__":
     app.run(debug=True)
