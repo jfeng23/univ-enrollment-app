@@ -131,8 +131,9 @@ def sql_data_instructor_edit():
 def course_database():
     from functions.sqlquery import sql_query
     results = sql_query(''' SELECT * FROM course''')
+    tresults = sql_query(''' SELECT * FROM instructor''')
     msg = 'SELECT * FROM course'
-    return render_template('coursedb.html', results=results, msg=msg)   
+    return render_template('coursedb.html', results=results, tresults=tresults, msg=msg)   
 
 @app.route('/course/insert',methods = ['POST', 'GET']) #this is when user submits an insert
 def sql_data_course_insert():
@@ -143,8 +144,9 @@ def sql_data_course_insert():
         sql_edit_insert(''' INSERT INTO course (title,tid) VALUES (?,?) ''', \
                        (title,tid))
     results = sql_query(''' SELECT * FROM course''')
+    tresults = sql_query(''' SELECT * FROM instructor''')
     msg = 'INSERT INTO course (title,tid) VALUES ('+title+','+tid+')'
-    return render_template('coursedb.html', results=results, msg=msg) 
+    return render_template('coursedb.html', results=results, tresults=tresults, msg=msg) 
 
 @app.route('/course/delete',methods = ['POST', 'GET']) #this is when user clicks delete link
 def sql_data_course_delete():
@@ -154,8 +156,9 @@ def sql_data_course_delete():
         title = request.args.get('title')
         sql_delete(''' DELETE FROM course where title = ? and tid = ?''', (title,tid) )
     results = sql_query(''' SELECT * FROM course''')
+    tresults = sql_query(''' SELECT * FROM instructor''')
     msg = 'DELETE FROM course WHERE title = ' + title + ' and tid = ' + tid
-    return render_template('coursedb.html', results=results, msg=msg)
+    return render_template('coursedb.html', results=results, tresults=tresults, msg=msg)
 
 @app.route('/course/query_edit',methods = ['POST', 'GET']) #this is when user clicks edit link
 def sql_edit_course_link():
@@ -165,7 +168,8 @@ def sql_edit_course_link():
         etitle = request.args.get('etitle')
         eresults = sql_query2(''' SELECT * FROM course where title = ? and tid = ?''', (etitle,etid))
     results = sql_query(''' SELECT * FROM course''')
-    return render_template('coursedb.html', eresults=eresults, results=results)
+    tresults = sql_query(''' SELECT * FROM instructor''')
+    return render_template('coursedb.html', eresults=eresults, results=results, tresults=tresults)
 
 @app.route('/course/edit',methods = ['POST', 'GET']) #this is when user submits an edit
 def sql_data_course_edit():
@@ -178,46 +182,80 @@ def sql_data_course_edit():
         sql_edit_insert(''' UPDATE course set title=?,tid=? WHERE title=? and tid=? ''', \
                        (title,tid,old_title,old_tid) )
     results = sql_query(''' SELECT * FROM course''')
+    tresults = sql_query(''' SELECT * FROM instructor''')
     msg = 'UPDATE course set title = ' + title + ', tid = ' + tid +' \
            WHERE title = ' + old_title + ' and tid = ' + old_tid
-    return render_template('coursedb.html', results=results, msg=msg)
+    return render_template('coursedb.html', results=results, tresults=tresults, msg=msg)
 
 # ---------------------------- enrollment ----------------------------
 
+
+@app.route('/enroll') 
+def enroll_database():
+    from functions.sqlquery import sql_query
+    results = sql_query(''' SELECT * FROM enroll JOIN student JOIN course ON enroll.sid = student.sid AND enroll.cid = course.cid''')
+    sresults = sql_query(''' SELECT * FROM student''')
+    cresults = sql_query(''' SELECT * FROM course''')
+    msg = 'SELECT * FROM enroll'
+    return render_template('enrolldb.html', results=results, sresults=sresults, cresults=cresults, msg=msg)   
+
+@app.route('/enroll/insert',methods = ['POST', 'GET']) #this is when user submits an insert
+def sql_data_enroll_insert():
+    from functions.sqlquery import sql_edit_insert, sql_query
+    if request.method == 'POST':
+        sid = request.form['sid']
+        cid = request.form['cid']
+        grade = request.form['grade']
+        sql_edit_insert(''' INSERT INTO enroll (sid,cid, grade) VALUES (?,?,?) ''', \
+                       (sid,cid,grade))
+    results = sql_query(''' SELECT * FROM enroll JOIN student JOIN course ON enroll.sid = student.sid AND enroll.cid = course.cid''')
+    sresults = sql_query(''' SELECT * FROM student''')
+    cresults = sql_query(''' SELECT * FROM course''')
+    msg = 'INSERT INTO enroll (sid,cid,grade) VALUES ('+sid+','+cid+','+grade+')'
+    return render_template('enrolldb.html', results=results, sresults=sresults, cresults=cresults, msg=msg)
+
+@app.route('/enroll/delete',methods = ['POST', 'GET']) #this is when user clicks delete link
 def sql_data_enroll_delete():
     from functions.sqlquery import sql_delete, sql_query
     if request.method == 'GET':
-        tid = request.args.get('tid')
-        title = request.args.get('title')
-        sql_delete(''' DELETE FROM enroll where title = ? and tid = ?''', (title,tid) )
-    results = sql_query(''' SELECT * FROM enroll''')
-    msg = 'DELETE FROM enroll WHERE title = ' + title + ' and tid = ' + tid
-    return render_template('enrolldb.html', results=results, msg=msg)
+        sid = request.args.get('sid')
+        cid = request.args.get('cid')
+        sql_delete(''' DELETE FROM enroll where cid = ? and sid = ?''', (cid,sid) )
+    results = sql_query(''' SELECT * FROM enroll JOIN student JOIN course ON enroll.sid = student.sid AND enroll.cid = course.cid''')
+    sresults = sql_query(''' SELECT * FROM student''')
+    cresults = sql_query(''' SELECT * FROM course''')
+    msg = 'DELETE FROM enroll WHERE cid = ' + cid + ' and sid = ' + sid
+    return render_template('enrolldb.html', results=results, sresults=sresults, cresults=cresults, msg=msg)
 
 @app.route('/enroll/query_edit',methods = ['POST', 'GET']) #this is when user clicks edit link
 def sql_edit_enroll_link():
     from functions.sqlquery import sql_query, sql_query2
     if request.method == 'GET':
-        etid = request.args.get('etid')
-        etitle = request.args.get('etitle')
-        eresults = sql_query2(''' SELECT * FROM enroll where title = ? and tid = ?''', (etitle,etid))
-    results = sql_query(''' SELECT * FROM enroll''')
-    return render_template('enrolldb.html', eresults=eresults, results=results)
+        esid = request.args.get('esid')
+        ecid = request.args.get('ecid')
+        eresults = sql_query2(''' SELECT * FROM enroll where cid = ? and sid = ?''', (ecid,esid))
+    results = sql_query(''' SELECT * FROM enroll JOIN student JOIN course ON enroll.sid = student.sid AND enroll.cid = course.cid''')
+    sresults = sql_query(''' SELECT * FROM student''')
+    cresults = sql_query(''' SELECT * FROM course''')
+    return render_template('enrolldb.html', eresults=eresults, results=results, sresults=sresults, cresults=cresults)
 
 @app.route('/enroll/edit',methods = ['POST', 'GET']) #this is when user submits an edit
 def sql_data_enroll_edit():
     from functions.sqlquery import sql_edit_insert, sql_query
     if request.method == 'POST':
-        old_tid = request.form['old_tid']
-        old_title = request.form['old_title']
-        tid = request.form['tid']
-        title = request.form['title']
-        sql_edit_insert(''' UPDATE enroll set title=?,tid=? WHERE title=? and tid=? ''', \
-                       (title,tid,old_title,old_tid) )
-    results = sql_query(''' SELECT * FROM enroll''')
-    msg = 'UPDATE enroll set title = ' + title + ', tid = ' + tid +' \
-           WHERE title = ' + old_title + ' and tid = ' + old_tid
-    return render_template('enrolldb.html', results=results, msg=msg)
+        old_sid = request.form['old_sid']
+        old_cid = request.form['old_cid']
+        sid = request.form['sid']
+        cid = request.form['cid']
+        grade = request.form['grade']
+        sql_edit_insert(''' UPDATE enroll set cid=?,sid=?, grade=? WHERE cid=? and sid=? ''', \
+                       (cid,sid,grade,old_cid,old_sid) )
+    results = sql_query(''' SELECT * FROM enroll JOIN student JOIN course ON enroll.sid = student.sid AND enroll.cid = course.cid''')
+    sresults = sql_query(''' SELECT * FROM student''')
+    cresults = sql_query(''' SELECT * FROM course''')
+    msg = 'UPDATE enroll set cid = ' + cid + ', sid = ' + sid +' \
+           WHERE cid = ' + old_cid + ' and sid = ' + old_sid
+    return render_template('enrolldb.html', results=results, sresults=sresults, cresults=cresults, msg=msg)
 
 if __name__ == "__main__":
     app.run(debug=True)

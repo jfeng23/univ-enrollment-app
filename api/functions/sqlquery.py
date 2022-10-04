@@ -40,9 +40,9 @@ conn.execute('''
     CREATE TABLE course (
         cid INTEGER NOT NULL,
         title VARCHAR(256) NOT NULL,
-        tid INTEGER NOT NULL,
+        tid INTEGER,
 
-        PRIMARY KEY (cid, tid),
+        PRIMARY KEY (cid),
         FOREIGN KEY (tid) REFERENCES instructor(tid)
     );
 ''')
@@ -50,10 +50,10 @@ conn.commit()
 
 conn.execute('''DROP TABLE IF EXISTS enroll''')
 conn.execute('''
-    CREATE TABLE enrolled (
+    CREATE TABLE enroll (
         sid INTEGER NOT NULL,
         cid INTEGER NOT NULL,
-        grade VARCHAR(256) NOT NULL,
+        grade VARCHAR(256),
 
         FOREIGN KEY (sid) REFERENCES student(sid),
         FOREIGN KEY (cid) REFERENCES course(cid) ON DELETE CASCADE
